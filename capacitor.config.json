@@ -1,0 +1,6 @@
+{
+  "appId": "com.vexo.myapp",
+  "appName": "My App",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
