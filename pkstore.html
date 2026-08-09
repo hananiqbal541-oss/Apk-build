@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PkStore — Sab Kuch, Aik Jagah</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Anton&family=Work+Sans:wght@400;500;600;700;800&display=swap');
+
+  :root{
+    --bg:#0F0E0D;
+    --bg-soft:#17140F;
+    --panel:#1D1712;
+    --gold:#D4A72C;
+    --crimson:#C0392B;
+    --cream:#F2EFEA;
+    --gray:#9A9086;
+    --line:#2E2620;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--cream);
+    font-family:'Work Sans', sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.display{
+    font-family:'Anton', sans-serif;
+    font-weight:400;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+  }
+  ::selection{ background:var(--gold); color:#111; }
+
+  /* ---------- TOPBAR ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:rgba(15,14,13,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 22px;
+  }
+  .logo{
+    font-size:26px;
+    letter-spacing:1px;
+    color:var(--cream);
+    cursor:default;
+    user-select:none;
+  }
+  .logo span{ color:var(--gold); }
+  .nav-actions{ display:flex; align-items:center; gap:14px; }
+  .cart-btn{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--cream);
+    padding:9px 16px;
+    border-radius:3px;
+    font-family:'Work Sans';
+    font-weight:600;
+    font-size:14px;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .cart-btn:hover{ border-color:var(--gold); color:var(--gold); }
+  .cart-count{
+    position:absolute; top:-8px; right:-8px;
+    background:var(--crimson); color:#fff;
+    font-size:11px; font-weight:800;
+    width:20px; height:20px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* ---------- MARQUEE ---------- */
+  .marquee-wrap{
+    background:var(--gold);
+    color:#141210;
+    overflow:hidden;
+    white-space:nowrap;
+    padding:7px 0;
+    border-bottom:2px solid #000;
+  }
+  .marquee{
+    display:inline-block;
+    padding-left:100%;
+    animation:scroll 22s linear infinite;
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+  }
+  @keyframes scroll{ from{transform:translateX(0);} to{transform:translateX(-100%);} }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding:70px 22px 50px;
+    text-align:center;
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(212,167,44,0.15), transparent 60%),
+      var(--bg);
+    border-bottom:1px solid var(--line);
+  }
+  .hero h1{
+    font-size:clamp(38px, 8vw, 78px);
+    line-height:0.95;
+    color:var(--cream);
+  }
+  .hero h1 .accent{ color:var(--gold); }
+  .hero p{
+    max-width:520px; margin:18px auto 0;
+    color:var(--gray); font-size:15px; line-height:1.6;
+  }
+  .hero-tag{
+    display:inline-block;
+    border:1px solid var(--crimson);
+    color:var(--crimson);
+    font-size:11px; font-weight:700;
+    letter-spacing:2px; text-transform:uppercase;
+    padding:5px 12px; border-radius:2px;
+    margin-bottom:18px;
+  }
+
+  /* ---------- CATEGORY CHIPS ---------- */
+  .chips{
+    display:flex; gap:10px; flex-wrap:wrap;
+    justify-content:center;
+    padding:24px 22px 6px;
+  }
+  .chip{
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--gray);
+    padding:8px 18px;
+    border-radius:20px;
+    font-size:13px; font-weight:600;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .chip.active, .chip:hover{
+    border-color:var(--gold);
+    color:var(--gold);
+    background:rgba(212,167,44,0.08);
+  }
+
+  /* ---------- GRID ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+    gap:20px;
+    padding:30px 22px 70px;
+    max-width:1200px;
+    margin:0 auto;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    overflow:hidden;
+    display:flex; flex-direction:column;
+    transition:.2s;
+  }
+  .card:hover{ transform:translateY(-4px); border-color:var(--gold); }
+  .card-img{
+    width:100%; aspect-ratio:1/1;
+    background:var(--bg-soft);
+    object-fit:cover;
+    display:block;
+  }
+  .card-body{ padding:14px; display:flex; flex-direction:column; gap:6px; flex:1; }
+  .card-cat{ font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--gray); }
+  .card-name{ font-size:15px; font-weight:700; color:var(--cream); }
+  .card-price{ font-size:17px; font-weight:800; color:var(--gold); margin-top:auto; }
+  .card-old-price{ font-size:12px; color:var(--gray); text-decoration:line-through; margin-left:6px; }
+  .add-btn{
+    margin-top:8px;
+    background:var(--gold);
+    color:#141210;
+    border:none;
+    padding:10px;
+    border-radius:3px;
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .add-btn:hover{ background:#e8bc3a; }
+  .add-btn:active{ transform:scale(0.97); }
+  .sale-badge{
+    position:absolute; margin:8px; background:var(--crimson);
+    color:#fff; font-size:11px; font-weight:800;
+    padding:3px 9px; border-radius:2px; letter-spacing:0.5px;
+  }
+  .card-media{ position:relative; }
+  .card-placeholder{
+    width:100%; aspect-ratio:1/1;
+    display:flex; align-items:center; justify-content:center;
+    font-size:54px;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(212,167,44,0.25), transparent 55%),
+      linear-gradient(150deg, #221B12, #14100C);
+    border-bottom:1px solid var(--line);
+  }
+  .mini-placeholder{
+    width:56px; height:56px; border-radius:4px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:24px;
+    background:linear-gradient(150deg, #221B12, #14100C);
+    flex-shrink:0;
+  }
+
+  .empty-state{
+    text-align:center; color:var(--gray); padding:60px 20px; grid-column:1/-1;
+  }
+
+  /* ---------- CART DRAWER ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.6);
+    z-index:90; display:none;
+  }
+  .overlay.show{ display:block; }
+  .drawer{
+    position:fixed; top:0; right:-420px; width:100%; max-width:400px; height:100%;
+    background:var(--bg-soft);
+    border-left:1px solid var(--line);
+    z-index:91;
+    transition:right .25s ease;
+    display:flex; flex-direction:column;
+  }
+  .drawer.open{ right:0; }
+  .drawer-head{
+    padding:18px 20px; border-bottom:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .drawer-head h3{ font-size:20px; }
+  .close-x{ background:none; border:none; color:var(--gray); font-size:22px; cursor:pointer; }
+  .drawer-items{ flex:1; overflow-y:auto; padding:14px 20px; }
+  .cart-item{
+    display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--line);
+    align-items:center;
+  }
+  .cart-item img{ width:56px; height:56px; object-fit:cover; border-radius:4px; }
+  .ci-info{ flex:1; }
+  .ci-name{ font-size:13px; font-weight:700; }
+  .ci-price{ font-size:12px; color:var(--gold); }
+  .qty-ctrl{ display:flex; align-items:center; gap:8px; margin-top:4px; }
+  .qty-ctrl button{
+    background:var(--panel); border:1px solid var(--line); color:var(--cream);
+    width:22px; height:22px; border-radius:3px; cursor:pointer; font-size:13px;
+  }
+  .remove-btn{ background:none; border:none; color:var(--crimson); font-size:12px; cursor:pointer; text-decoration:underline; }
+  .drawer-foot{ padding:18px 20px; border-top:1px solid var(--line); }
+  .total-row{ display:flex; justify-content:space-between; font-size:16px; font-weight:800; margin-bottom:14px; }
+  .wa-btn{
+    width:100%; background:#25D366; color:#0b1a12; border:none;
+    padding:14px; border-radius:4px; font-weight:800; font-size:14px;
+    letter-spacing:0.5px; cursor:pointer; text-transform:uppercase;
+  }
+  .wa-btn:hover{ filter:brightness(1.08); }
+  .cart-empty{ text-align:center; color:var(--gray); padding:40px 10px; font-size:13px; }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    border-top:1px solid var(--line);
+    padding:26px 22px; text-align:center;
+    color:var(--gray); font-size:12px;
+  }
+  footer a{ color:var(--gray); text-decoration:underline; cursor:pointer; background:none; border:none; font-size:12px; }
+
+  /* ---------- ADMIN ---------- */
+  .admin-panel{
+    position:fixed; inset:0; background:var(--bg); z-index:200;
+    overflow-y:auto; display:none; padding:26px 20px 80px;
+  }
+  .admin-panel.show{ display:block; }
+  .admin-head{
+    display:flex; justify-content:space-between; align-items:center;
+    max-width:900px; margin:0 auto 24px;
+  }
+  .admin-close{ background:var(--panel); border:1px solid var(--line); color:var(--cream); padding:8px 14px; border-radius:4px; cursor:pointer; }
+  .admin-box{
+    max-width:900px; margin:0 auto 26px;
+    background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:20px;
+  }
+  .admin-box h3{ font-size:16px; margin-bottom:14px; color:var(--gold); }
+  .field{ margin-bottom:12px; }
+  .field label{ display:block; font-size:12px; color:var(--gray); margin-bottom:5px; font-weight:600; }
+  .field input, .field select{
+    width:100%; background:var(--bg-soft); border:1px solid var(--line); color:var(--cream);
+    padding:10px 12px; border-radius:4px; font-size:14px; font-family:'Work Sans';
+  }
+  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .save-btn{
+    background:var(--gold); color:#141210; border:none; padding:11px 22px;
+    border-radius:4px; font-weight:800; cursor:pointer; font-size:13px; text-transform:uppercase;
+  }
+  .admin-product-row{
+    display:flex; align-items:center; gap:12px; padding:10px; border-bottom:1px solid var(--line);
+  }
+  .admin-product-row img{ width:44px; height:44px; object-fit:cover; border-radius:4px; }
+  .admin-product-row .apr-name{ flex:1; font-size:13px; font-weight:600; }
+  .apr-del{ background:none; border:1px solid var(--crimson); color:var(--crimson); padding:5px 10px; border-radius:3px; cursor:pointer; font-size:11px; }
+  .login-box{
+    max-width:340px; margin:120px auto; background:var(--panel); border:1px solid var(--line);
+    border-radius:6px; padding:28px; text-align:center;
+  }
+  .login-box input{
+    width:100%; margin:14px 0; padding:11px; background:var(--bg-soft); border:1px solid var(--line);
+    color:var(--cream); border-radius:4px; text-align:center;
+  }
+
+  @media(max-width:600px){
+    .field-row{ grid-template-columns:1fr; }
+  }
+</style>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="logo" ondblclick="openAdmin()">Pk<span>Store</span></div>
+    <div class="nav-actions">
+      <button class="cart-btn" onclick="openCart()">Cart <span id="cartCountText">(0)</span></button>
+    </div>
+  </div>
+
+  <div class="marquee-wrap">
+    <div class="marquee" id="marqueeText">🔥 CASH ON DELIVERY ALL OVER PAKISTAN — WHATSAPP PE ORDER CONFIRM KARO — SAB SE SASTA DAAM — 🔥 CASH ON DELIVERY ALL OVER PAKISTAN — WHATSAPP PE ORDER CONFIRM KARO — SAB SE SASTA DAAM —</div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">Est. Pakistan</div>
+    <h1>Sab Kuch. <span class="accent">Aik Jagah.</span></h1>
+    <p>Clothes se electronics tak — apni pasand chuno, cart mein daalo, aur WhatsApp pe order confirm karo. Koi login nahi, koi jhanjhat nahi.</p>
+  </div>
+
+  <!-- CATEGORY CHIPS -->
+  <div class="chips" id="chipRow"></div>
+
+  <!-- PRODUCT GRID -->
+  <div class="grid" id="productGrid"></div>
+
+  <footer>
+    PkStore — Har order WhatsApp pe direct confirm hota hai. &nbsp;•&nbsp;
+    <button onclick="openAdmin()">Admin</button>
+  </footer>
+
+  <!-- CART DRAWER -->
+  <div class="overlay" id="overlay" onclick="closeCart()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-head">
+      <h3>Your Cart</h3>
+      <button class="close-x" onclick="closeCart()">✕</button>
+    </div>
+    <div class="drawer-items" id="drawerItems"></div>
+    <div class="drawer-foot">
+      <div class="total-row"><span>Total</span><span id="cartTotal">Rs 0</span></div>
+      <button class="wa-btn" onclick="checkoutWhatsApp()">Order via WhatsApp</button>
+    </div>
+  </div>
+
+  <!-- ADMIN LOGIN -->
+  <div class="admin-panel" id="adminLogin">
+    <div class="login-box">
+      <h3 style="font-family:'Anton'; font-size:22px; color:var(--gold);">Admin Login</h3>
+      <input type="password" id="adminPass" placeholder="Password">
+      <button class="save-btn" style="width:100%;" onclick="tryAdminLogin()">Enter</button>
+      <div style="margin-top:14px;"><button class="admin-close" onclick="closeAdminLogin()">Cancel</button></div>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="admin-panel" id="adminPanel">
+    <div class="admin-head">
+      <h2 style="font-size:24px;">Admin Panel</h2>
+      <button class="admin-close" onclick="closeAdmin()">Close</button>
+    </div>
+
+    <div class="admin-box">
+      <h3>Store Settings</h3>
+      <div class="field">
+        <label>WhatsApp Number (with country code, no + or spaces — e.g. 923001234567)</label>
+        <input type="text" id="waNumberInput" placeholder="923001234567">
+      </div>
+      <div class="field">
+        <label>Marquee Text</label>
+        <input type="text" id="marqueeInput" placeholder="Announcement text">
+      </div>
+      <button class="save-btn" onclick="saveSettings()">Save Settings</button>
+    </div>
+
+    <div class="admin-box">
+      <h3>Add / Edit Product</h3>
+      <input type="hidden" id="editId">
+      <div class="field-row">
+        <div class="field"><label>Product Name</label><input type="text" id="pName" placeholder="e.g. Cotton Kurta"></div>
+        <div class="field"><label>Category</label><input type="text" id="pCat" placeholder="e.g. Clothes"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Price (Rs)</label><input type="number" id="pPrice" placeholder="1500"></div>
+        <div class="field"><label>Old Price (optional, for sale)</label><input type="number" id="pOldPrice" placeholder="2000"></div>
+      </div>
+      <div class="field">
+        <label>Image URL</label>
+        <input type="text" id="pImg" placeholder="https://... (paste any image link)">
+      </div>
+      <button class="save-btn" onclick="saveProduct()">Save Product</button>
+    </div>
+
+    <div class="admin-box">
+      <h3>Current Products</h3>
+      <div id="adminProductList"></div>
+    </div>
+  </div>
+
+<script>
+  // ======== FIREBASE SETUP ========
+  // Firebase Console se apna config yahan paste karo (Project Settings -> Your apps -> Web app)
+  const firebaseConfig = {
+    apiKey: "PASTE_YOUR_API_KEY",
+    authDomain: "PASTE_YOUR_AUTH_DOMAIN",
+    projectId: "PASTE_YOUR_PROJECT_ID",
+    storageBucket: "PASTE_YOUR_STORAGE_BUCKET",
+    messagingSenderId: "PASTE_YOUR_SENDER_ID",
+    appId: "PASTE_YOUR_APP_ID"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  // ======== END FIREBASE SETUP ========
+
+  const ADMIN_PASSWORD = "pkstore786";
+  const CART_KEY = "pkstore_cart_v1";
+
+  const categoryIcons = {
+    "Clothes":"👕", "Electronics":"🎧", "Accessories":"👜",
+    "Footwear":"👟", "Beauty":"💄", "Home":"🏠", "Toys":"🧸"
+  };
+  function iconFor(cat){ return categoryIcons[cat] || "🛍️"; }
+
+  function mediaHTML(p, cssClass){
+    if(p.img && p.img.trim() !== ""){
+      return `<img class="${cssClass}" src="${p.img}" alt="${p.name}" onerror="this.outerHTML='<div class=\\'${cssClass==='card-img'?'card-placeholder':'mini-placeholder'}\\'>${iconFor(p.cat)}</div>'">`;
+    }
+    return `<div class="${cssClass==='card-img'?'card-placeholder':'mini-placeholder'}">${iconFor(p.cat)}</div>`;
+  }
+
+  function safeGet(key, fallback){
+    try{
+      const v = localStorage.getItem(key);
+      return v ? JSON.parse(v) : fallback;
+    }catch(e){ return fallback; }
+  }
+  function safeSet(key, val){
+    try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){ console.warn("Storage unavailable", e); }
+  }
+
+  let products = [];
+  let settings = { waNumber:"923001234567", marquee:"🔥 CASH ON DELIVERY ALL OVER PAKISTAN — WHATSAPP PE ORDER CONFIRM KARO —" };
+  let cart = safeGet(CART_KEY, {});
+  let activeCat = "All";
+
+  function persistCart(){ safeSet(CART_KEY, cart); }
+
+  // Live sync: products (shared across every device/user)
+  db.collection("products").onSnapshot(snapshot=>{
+    products = snapshot.docs.map(doc=>({ id: doc.id, ...doc.data() }));
+    renderChips();
+    renderGrid();
+    if(document.getElementById("adminPanel").classList.contains("show")) renderAdminProductList();
+  }, err=>{ console.error("Firestore products error:", err); });
+
+  // Live sync: store settings (WhatsApp number, marquee)
+  db.collection("settings").doc("store").onSnapshot(doc=>{
+    if(doc.exists){
+      settings = doc.data();
+      document.getElementById("marqueeText").textContent = settings.marquee + " " + settings.marquee;
+    }
+  }, err=>{ console.error("Firestore settings error:", err); });
+
+  function renderChips(){
+    const cats = ["All", ...new Set(products.map(p=>p.cat))];
+    const row = document.getElementById("chipRow");
+    row.innerHTML = cats.map(c=>
+      `<button class="chip ${c===activeCat?'active':''}" onclick="setCategory('${c.replace(/'/g,"\\'")}')">${c}</button>`
+    ).join("");
+  }
+
+  function setCategory(c){ activeCat = c; renderChips(); renderGrid(); }
+
+  function renderGrid(){
+    const grid = document.getElementById("productGrid");
+    const list = activeCat==="All" ? products : products.filter(p=>p.cat===activeCat);
+    if(list.length===0){
+      grid.innerHTML = `<div class="empty-state">Is category mein abhi koi product nahi hai.</div>`;
+      return;
+    }
+    grid.innerHTML = list.map(p=>`
+      <div class="card">
+        <div class="card-media">
+          ${p.oldPrice ? `<div class="sale-badge">SALE</div>` : ""}
+          ${mediaHTML(p, 'card-img')}
+        </div>
+        <div class="card-body">
+          <div class="card-cat">${p.cat}</div>
+          <div class="card-name">${p.name}</div>
+          <div class="card-price">Rs ${p.price.toLocaleString()} ${p.oldPrice ? `<span class="card-old-price">Rs ${p.oldPrice.toLocaleString()}</span>` : ""}</div>
+          <button class="add-btn" onclick="addToCart('${p.id}')">Add to Cart</button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function addToCart(id){
+    cart[id] = (cart[id]||0) + 1;
+    persistCart();
+    updateCartCount();
+    renderDrawer();
+  }
+  function changeQty(id, delta){
+    if(!cart[id]) return;
+    cart[id] += delta;
+    if(cart[id]<=0) delete cart[id];
+    persistCart();
+    updateCartCount();
+    renderDrawer();
+  }
+  function removeFromCart(id){
+    delete cart[id];
+    persistCart();
+    updateCartCount();
+    renderDrawer();
+  }
+
+  function updateCartCount(){
+    const count = Object.values(cart).reduce((a,b)=>a+b,0);
+    document.getElementById("cartCountText").textContent = `(${count})`;
+  }
+
+  function cartTotal(){
+    return Object.entries(cart).reduce((sum,[id,qty])=>{
+      const p = products.find(p=>p.id===id);
+      return p ? sum + p.price*qty : sum;
+    },0);
+  }
+
+  function renderDrawer(){
+    const wrap = document.getElementById("drawerItems");
+    const ids = Object.keys(cart);
+    if(ids.length===0){
+      wrap.innerHTML = `<div class="cart-empty">Cart khali hai. Kuch add karo!</div>`;
+    }else{
+      wrap.innerHTML = ids.map(id=>{
+        const p = products.find(p=>p.id===id);
+        if(!p) return "";
+        return `
+          <div class="cart-item">
+            ${mediaHTML(p, 'mini-img')}
+            <div class="ci-info">
+              <div class="ci-name">${p.name}</div>
+              <div class="ci-price">Rs ${p.price.toLocaleString()}</div>
+              <div class="qty-ctrl">
+                <button onclick="changeQty('${id}',-1)">−</button>
+                <span>${cart[id]}</span>
+                <button onclick="changeQty('${id}',1)">+</button>
+                <button class="remove-btn" onclick="removeFromCart('${id}')">Remove</button>
+              </div>
+            </div>
+          </div>`;
+      }).join("");
+    }
+    document.getElementById("cartTotal").textContent = `Rs ${cartTotal().toLocaleString()}`;
+  }
+
+  function openCart(){
+    renderDrawer();
+    document.getElementById("drawer").classList.add("open");
+    document.getElementById("overlay").classList.add("show");
+  }
+  function closeCart(){
+    document.getElementById("drawer").classList.remove("open");
+    document.getElementById("overlay").classList.remove("show");
+  }
+
+  function checkoutWhatsApp(){
+    const ids = Object.keys(cart);
+    if(ids.length===0){ alert("Pehle cart mein product add karo."); return; }
+    let msg = "Assalam-o-Alaikum PkStore! Mera order:\n\n";
+    ids.forEach(id=>{
+      const p = products.find(p=>p.id===id);
+      if(p) msg += `• ${p.name} x${cart[id]} — Rs ${(p.price*cart[id]).toLocaleString()}\n`;
+    });
+    msg += `\nTotal: Rs ${cartTotal().toLocaleString()}\n\nBraye meherbani order confirm karein.`;
+    const url = `https://wa.me/${settings.waNumber}?text=${encodeURIComponent(msg)}`;
+    window.open(url, "_blank");
+  }
+
+  // ---------- ADMIN ----------
+  function openAdmin(){
+    document.getElementById("adminLogin").classList.add("show");
+  }
+  function closeAdminLogin(){
+    document.getElementById("adminLogin").classList.remove("show");
+    document.getElementById("adminPass").value = "";
+  }
+  function tryAdminLogin(){
+    const val = document.getElementById("adminPass").value;
+    if(val === ADMIN_PASSWORD){
+      closeAdminLogin();
+      document.getElementById("adminPanel").classList.add("show");
+      document.getElementById("waNumberInput").value = settings.waNumber;
+      document.getElementById("marqueeInput").value = settings.marquee;
+      renderAdminProductList();
+    }else{
+      alert("Galat password.");
+    }
+  }
+  function closeAdmin(){
+    document.getElementById("adminPanel").classList.remove("show");
+  }
+
+  function saveSettings(){
+    const waNumber = document.getElementById("waNumberInput").value.trim();
+    const marquee = document.getElementById("marqueeInput").value.trim();
+    db.collection("settings").doc("store").set({ waNumber, marquee })
+      .then(()=> alert("Settings save ho gayi. Sab devices pe update ho jayegi."))
+      .catch(err=> alert("Error: " + err.message));
+  }
+
+  function renderAdminProductList(){
+    const wrap = document.getElementById("adminProductList");
+    wrap.innerHTML = products.map(p=>`
+      <div class="admin-product-row">
+        ${mediaHTML(p, 'mini-img')}
+        <div class="apr-name">${p.name} — Rs ${p.price.toLocaleString()} <span style="color:var(--gray)">(${p.cat})</span></div>
+        <button class="apr-del" onclick="editProduct('${p.id}')" style="border-color:var(--gold); color:var(--gold);">Edit</button>
+        <button class="apr-del" onclick="deleteProduct('${p.id}')">Delete</button>
+      </div>
+    `).join("");
+  }
+
+  function editProduct(id){
+    const p = products.find(p=>p.id===id);
+    if(!p) return;
+    document.getElementById("editId").value = p.id;
+    document.getElementById("pName").value = p.name;
+    document.getElementById("pCat").value = p.cat;
+    document.getElementById("pPrice").value = p.price;
+    document.getElementById("pOldPrice").value = p.oldPrice || "";
+    document.getElementById("pImg").value = p.img;
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  function saveProduct(){
+    const name = document.getElementById("pName").value.trim();
+    const cat = document.getElementById("pCat").value.trim();
+    const price = parseFloat(document.getElementById("pPrice").value);
+    const oldPrice = parseFloat(document.getElementById("pOldPrice").value) || 0;
+    const img = document.getElementById("pImg").value.trim() || "https://placehold.co/400x400/1D1712/D4A72C?text=PkStore";
+    const editId = document.getElementById("editId").value;
+
+    if(!name || !cat || !price){
+      alert("Name, category aur price zaroori hain.");
+      return;
+    }
+
+    const data = { name, cat, price, oldPrice, img };
+    const save = editId
+      ? db.collection("products").doc(editId).set(data)
+      : db.collection("products").add(data);
+
+    save
+      .then(()=>{
+        clearProductForm();
+        alert("Product save ho gaya. Sab devices pe show hoga.");
+      })
+      .catch(err=> alert("Error: " + err.message));
+  }
+
+  function clearProductForm(){
+    document.getElementById("editId").value = "";
+    document.getElementById("pName").value = "";
+    document.getElementById("pCat").value = "";
+    document.getElementById("pPrice").value = "";
+    document.getElementById("pOldPrice").value = "";
+    document.getElementById("pImg").value = "";
+  }
+
+  function deleteProduct(id){
+    if(!confirm("Ye product delete karna hai?")) return;
+    db.collection("products").doc(id).delete()
+      .catch(err=> alert("Error: " + err.message));
+  }
+
+  // ---------- INIT ----------
+  // Products & settings render automatically once Firestore listeners fire above.
+  updateCartCount();
+</script>
+</body>
+</html>
